@@ -314,7 +314,7 @@ params:
   # Key is the link label order.
   # Value before `||` delimiter is the target permalink, value after `||` delimiter is the name of Font Awesome icon.
   socials: 
-    social0: Github || https://github.com/Aphrosmeteorite || fab fa-github
+    social0: Github || https://github.com/Laplace825 || fab fa-github
     social1: E-Mail || laplace_yongle_he@163.com || fa fa-envelope
     # social2: 知乎 || https://www.zhihu.com/people/lisenhui || fa fa-book
     #Google: https://plus.google.com/yourname || fab fa-google

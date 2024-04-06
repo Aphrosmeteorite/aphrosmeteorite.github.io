@@ -102,5 +102,5 @@ Hugo安装 首先我们使用到choco去安装hugo，先安装hugo，先以管�
 那流岚，
 那虹霓，
 我们永远分离，
-却又终生相依。</content></entry><entry><title>友情链接</title><url>/flinks.html</url><categories/><tags/><content type="html"> 如想交换本站友情链接，请在评论区留下你的站点信息，格式参考如下：
+却又终生相依。</content></entry><entry><title/><url>/post/template/template/</url><categories><category><no value=/></categories><tags><tag><no value=/></tags><content type="html"> date:{{date:YYYY-MM-DDTHH:mm:ss}} lastmod: {{date:YYYY-MM-DDTHH:mm:ss}}</content></entry><entry><title>友情链接</title><url>/flinks.html</url><categories/><tags/><content type="html"> 如想交换本站友情链接，请在评论区留下你的站点信息，格式参考如下：
 - name: Laplace desc: When the SUN Rises in the EAST avatar: https://lap.cn/imgs/avatar.png link: https://lap.cn</content></entry></search>

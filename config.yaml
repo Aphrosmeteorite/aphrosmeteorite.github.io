@@ -531,7 +531,7 @@ params:
   # Subscribe through Telegram Channel, Twitter, etc.
   # Usage: `Key: name || permalink || icon` (Font Awesome)
   followMe:
-    channel0: Github || https://github.com//aphrosmeteorite || fab fa-github
+    channel0: Github || https://github.com//laplace825 || fab fa-github
     #channel0: Twitter || https://twitter.com/username || fab fa-twitter
     #channel1: Telegram || https://t.me/channel_name || fab fa-telegram
     # channel2: WeChat || /images/wechat_channel.jpg || fab fa-weixin
@@ -640,7 +640,7 @@ params:
     enable: true
     # 你的 Github 仓库地址
     # Your repository url on Github.
-    permalink: https://github.com/Aphrosmeteorite
+    permalink: https://github.com/laplace825
     # 关注说明
     # Show this title when cursor move on.
     title: Follow me on GitHub ฅ( ̳• ◡ • ̳)ฅ

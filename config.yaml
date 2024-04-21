@@ -55,7 +55,7 @@ markup:
     lineNumbersInTable: false
     noClasses: true
     noHl: false
-    style: dracula
+    style: onedark
     tabWidth: 2
   tableOfContents:
     # 开始/结束标题级别：1-6 (建议从2开始)
@@ -300,7 +300,7 @@ params:
     # 站点访问信息
     # Site's view information
     views:  
-      enable: true
+      enable: false
       # 组件类型，可选值为： 51la, busuanzi
       # 使用51la时需要注册账号：https://invite.51.la/
       # Plguin value is: 51la, busuanzi
@@ -490,7 +490,7 @@ params:
       enable: false
       # 页面访问统计插件，支持busuanzi, waline, leancloud
       # Page views counter plugin, support: busuanzi, waline, leancloud
-      plugin: waline
+      plugin: busuanzi
 
   # 文章底部的设置
   # Post footer settings
@@ -947,8 +947,8 @@ params:
     # Show Views / Visitors of the website / page with busuanzi.
     # For more information: http://ibruce.info/2015/04/04/busuanzi/
     # busuanzi:
-    #   visitorsIcon: fa fa-user
-    #   viewsIcon: fa fa-eye
+    #  visitorsIcon: fa fa-user
+    #  viewsIcon: fa fa-eye
 
   # ---------------------------------------------------------------
   # 内容搜索服务

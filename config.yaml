@@ -300,7 +300,7 @@ params:
     # 站点访问信息
     # Site's view information
     views:  
-      enable: false
+      enable: true
       # 组件类型，可选值为： 51la, busuanzi
       # 使用51la时需要注册账号：https://invite.51.la/
       # Plguin value is: 51la, busuanzi

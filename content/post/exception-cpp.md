@@ -7,6 +7,7 @@ tags:
   - C++
 categories:
 - C++
+- Effective Modern C++
 ---
 
 ~~希望没有标题党的意思~~,一个有趣且巧妙的设计,可以让一些类只需要两个构造函数,而我们只需要额外增加的只有`swap`和`copy`

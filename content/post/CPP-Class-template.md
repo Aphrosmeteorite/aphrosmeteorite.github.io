@@ -6,6 +6,7 @@ tags:
   - C++
 categories:
   - C++
+  - C++ template meta programming
 date: 2024-06-14
 ---
 

@@ -7,6 +7,7 @@ tags:
   - C++
 categories:
 - C++
+- Effective Modern C++
 ---
 
 最近看了一点移动语义，写一点学习内容吧

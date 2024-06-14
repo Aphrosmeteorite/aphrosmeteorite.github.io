@@ -7,6 +7,7 @@ tags:
   - C++
 categories:
 - C++
+- Effective Modern C++
 ---
 
 对之前移动语义的部分补充，主要是关于`std::move`的实现

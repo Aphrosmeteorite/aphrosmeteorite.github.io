@@ -4,7 +4,10 @@ Hello, friend! Here is a simple self-introduction 💬
 希望能遇到志同道合的朋友
 一个理想主义者，一个浪漫主义者。
 愿生活充满诗意，愿远方永远触手可及。
-感谢你的关注，我素未谋面的朋友。</content></entry><entry><title>你的 Ubuntu bash输入延迟、卡顿？</title><url>/post/why-ubuntu-lag/</url><categories><category>Linux</category></categories><tags><tag>Linux</tag></tags><content type="html"> 这是在我的Ubuntu 23.10下大概持续了一个多星期的问题，无论是 bash zsh都出现了令人难以忍受的延迟输入问题，vim nvim等编辑器更是完全无法使用。直到最近找到这个问题的解决方法，在此记录。
+感谢你的关注，我素未谋面的朋友。</content></entry><entry><title>C++类模版</title><url>/post/cpp-class-template/</url><categories><category>C++</category></categories><tags><tag>C++</tag></tags><content type="html"><![CDATA[  继续开新坑了♿，C++ 模版元编程。作为一个记录笔记吧。如有错误，也请原谅QAQ，代码都是用msvc clang编译跑通。
+定义一个类模板相信大家已经会使用C++定义类模板了，不就是在定义的时候多加一行template&amp;lt;typename T&amp;gt; 吗。是的，这是最基础的泛型。例如下面的一个Stack类，就是一个模板类。在接下来的讲解中，请你不要关注Stack这个类本身的作用(例如栈)，这里我们仅仅以此为例，并讨论各种可能与模板类相关的语法，请忽略这种想法“这样定义一个构造函数没意义啊”，我们只讨论语法上的规则和可能性。
+template &amp;lt;typename T&amp;gt; class Stack { private: std::vector&amp;lt;T&amp;gt; m_data; public: Stack() = default; Stack(Stack const&amp;amp;); // 参数不指定模板特化类型,默认与当前被构造的Stack类型一致 Stack(Stack&amp;lt;T&amp;gt; &amp;amp;, size_t size); Stack(T elem) : m_data({std::move(elem)}) {} Stack(const std::initializer_list&amp;lt;T&amp;gt; &amp;amp;initList) : m_data(initList) {} }; 省略显式指出模板类型(since C++17)从C++17开始，我们可以不用再显式指出一个模版类的模版参数类型(默认值除外)，例如下面这段代码在C++17以后可以成功编译。
+Stack stk_initList{&amp;#34;Hello&amp;#34;}; Stack stk(&amp;#34;Hello&amp;#34;); 此时我们可以看见对于stk变量，其模版参数类型被推导为const char *(和char const *等价，都属于顶层const)。也可以看出这个构造函数匹配了Stack(T elem)，但是当我们看stk_initList时，我们却会发现不同的地方，虽然模版参数都被推导为了const char *，但是这里实际上调用了包含initializer_list的构造函数。 可是，如果我们需要更方便得去处理字符串，我们会希望虽然是通过&amp;quot;Hello&amp;quot;这样的字面量进行 …  ]]></content></entry><entry><title>你的 Ubuntu bash输入延迟、卡顿？</title><url>/post/why-ubuntu-lag/</url><categories><category>Linux</category></categories><tags><tag>Linux</tag></tags><content type="html"> 这是在我的Ubuntu 23.10下大概持续了一个多星期的问题，无论是 bash zsh都出现了令人难以忍受的延迟输入问题，vim nvim等编辑器更是完全无法使用。直到最近找到这个问题的解决方法，在此记录。
 关于为何卡顿
 本博客参考了这篇 issue input delay on Terminal Ubuntu 22.04
 发现这可能是最近Ubuntu 更新 mutter 导致的问题，可以看看里面的解答。这里记录一下自己解决的情况。
@@ -126,5 +129,5 @@ Hugo安装首先我们使用到choco去安装hugo，先安装hugo，先以管�
 那流岚，
 那虹霓，
 我们永远分离，
-却又终生相依。</content></entry><entry><title/><url>/post/obsidian-template/template/</url><categories><category><no value=/></categories><tags><tag><no value=/></tags><content type="html"> date:{{date:YYYY-MM-DDTHH:mm:ss}} lastmod: {{date:YYYY-MM-DDTHH:mm:ss}}</content></entry><entry><title>友情链接</title><url>/flinks.html</url><categories/><tags/><content type="html"> 如想交换本站友情链接，请在评论区留下你的站点信息，格式参考如下：
+却又终生相依。</content></entry><entry><title>友情链接</title><url>/flinks.html</url><categories/><tags/><content type="html"> 如想交换本站友情链接，请在评论区留下你的站点信息，格式参考如下：
 - name: Laplace desc: When the SUN Rises in the EAST avatar: https://lap.cn/imgs/avatar.png link: https://lap.cn</content></entry></search>

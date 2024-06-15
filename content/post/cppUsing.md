@@ -1,12 +1,3 @@
-<!--
- * @Author: Laplace825
- * @Date: 2024-06-14 21:24:15
- * @LastEditTime: 2024-06-14 23:51:41
- * @LastEditors: Laplace825
- * @FilePath: \lap\content\post\cppUsing.md
- * @Description:  
- * Copyright (c) 2024 by Laplace825, All Rights Reserved.
--->
 ---
 author:  "Laplace" 
 title:  "关于C++中使用using替代typedef"

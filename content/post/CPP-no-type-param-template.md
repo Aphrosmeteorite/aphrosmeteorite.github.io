@@ -1,7 +1,7 @@
 ---
-title: C++非类型模版参数
-description: A brief note about C++ no typelike param
-author: Laplace
+title: "C++非类型模版参数"
+description: "A brief note about C++ no typelike param"
+author: "Laplace"
 tags:
   - C++
 categories:

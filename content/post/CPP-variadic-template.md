@@ -1,7 +1,7 @@
 ---
-title: C++变参模版
-description: A brief note about C++ variadic template
-author: Laplace
+title: "C++变参模版"
+description: "A brief note about C++ variadic template"
+author: "Laplace"
 tags:
   - C++
 categories:

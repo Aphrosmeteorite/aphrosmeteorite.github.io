@@ -2,7 +2,7 @@
 title: "Windows下使用neovide+lunarvim"
 author: "laplace"
 date: 2024-06-01
-lastmod: 2024-06-25T16:26:49
+lastmod: 2024-06-25
 description: "use neovide and lunarvim in Windows" 
 tags: 
 - tools

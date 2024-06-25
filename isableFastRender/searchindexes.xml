@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>关于我</title><url>/post/hello-world/</url><categories/><tags/><content type="html"> 😄 你好朋友！这里是一个简单的自我介绍
+Hello, friend! Here is a simple self-introduction 💬
+我是正在一名学习计算机专业的学生
+希望能遇到志同道合的朋友
+一个理想主义者，一个浪漫主义者。
+愿生活充满诗意，愿远方永远触手可及。
+感谢你的关注，我素未谋面的朋友。</content></entry><entry><title>C++制作一个编译期整数序列生成器</title><url>/post/use-template-build-index-maker/</url><categories><category>C++</category><category>C++ template meta programming</category></categories><tags><tag>C++</tag></tags><content type="html"><![CDATA[  在使用std::get&amp;lt;&amp;gt;()时产生的好奇，发现标准库有一个std::index_sequence，尝试使用C++自行实现一个std::index_sequence整数序列生成器，只需要编译期传入序列终点👍。
+功能是什么？首先需要让我们看看功能是什么，具体可以怎么做。例如我们有一个元组，我们需要一个函数在编译期帮助我们直接遍历这个元组，并将元组内容打印出来。目的是将t传入，然后把t的内容全部打印出来。
+auto t = std::make_tuple(1, 2, 3, &amp;#34;Hello!&amp;#34;, 4.5); lap::print(t); //1,2, 3, Hello!, 4.5 如何产生序列？如果需要通过只传入一个序列终点就产生从0开始的序列，仅仅凭借一个值是不可能产生的，我们也许会说变参模版，这也是接下来的解决方案。我通过继承模版递归，进行序列的生成。
+继承模版递归要产生序列，我们需要通过一个终点不断往更小的值递归，然后把更小的值放进这个序列的变参模版中。我制作了下面这个_make_integer_sequence类模版。
+template &amp;lt;typename T, size_t... _Vals&amp;gt; struct integer_sequence { using type = T; static constexpr std::size_t value_size = sizeof...(_Vals); }; template &amp;lt;typename T, size_t N, T... _Vals&amp;gt; struct _make_integer_sequence : _make_integer_sequence&amp;lt;T, N - 1, N - 1, _Vals...&amp;gt; { /** * @brief: 递归生成序列 * 每次递归都会生成一个新的继承类,直到N为0 **/ }; template &amp;lt;typename T, T... _Vals&amp;gt; struct _make_integer_sequence&amp;lt;T, 0, _Vals...&amp;gt; : integer_sequence&amp;lt;T, _Vals...&amp;gt; { }; 我们先聚焦于_make_integer_sequence这个类本身， …  ]]></content></entry><entry><title>C++变参模版</title><url>/post/cpp-variadic-template/</url><categories><category>C++</category><category>C++ template meta programming</category></categories><tags><tag>C++</tag></tags><content type="html"><![CDATA[  这章属于是重点了，而且感觉还挺难掌握各种用法的，不过也是让我感觉魔法的开始✨。
+什么是变参模版变参模版表示的是传入参数可以有无数多个，同时传入参数的类型也可以完全不同。
+C 中的可变参数函数在 C 语言中，可以用下面这种方式进行一堆int类型打印。第一个参数是需要传入的参数的个数，第二个则是实际参数。
+#include &amp;lt;stdio.h&amp;gt; #include &amp;lt;stdarg.h&amp;gt; void prints(int argsNumber, ...) { va_list valist; va_start(valist, argsNumber); for (int i = 0; i &amp;lt; argsNumber; i++) { printf(&amp;#34;%d &amp;#34;, va_arg(valist, int)); } va_end(valist); } C++中的变参模版C++中变参模版在C的基础上变得更加好用，我们不需要传入参数个数，也可以使用模版使得传入的每个参数的类型都不一样。例如我们可以实现这样一个打印不定个参数的函数。请注意这里不要使用using std::print或者using namespace std，如果需要使用的话，请将下面的代码放在一个命名空间内，防止造成命名空间污染。
+using std::println; template &amp;lt;typename T&amp;gt; void print(T arg) { println(&amp;#34;{}&amp;#34;, arg); } template &amp;lt;typename T, typename... Args&amp;gt; void print(T firstArg, Args... args) { println(&amp;#34;{}&amp;#34;, firstArg); print(args...); // 每次把第二个参数及以后传入,直到最后一个参数 } 在上面的函数中，我们没见过的就是typename... Args，这里就是变参模版的写法，代表一堆类型不定的参数。在函数的参数列表里，Args... 我们应该视作一种类型，而args则是所有参数。这里，我们把args称作参数包。上面的打印方法通过递归的方式，每次把第一个参数以后的参数传入递归，一直到最后只剩一个参数时，调用第一个print(T …  ]]></content></entry><entry><title>C++非类型模版参数</title><url>/post/cpp-no-type-param-template/</url><categories><category>C++</category><category>C++ template meta programming</category></categories><tags><tag>C++</tag></tags><content type="html"><![CDATA[  非类型模板参数其实说来也简单，也就是在template中将typename换成具体的类型。但是还是有诸多限制和使用方式的。👍
+Array的非类型模板参数我们都知道在std::array中需要声明类型和一个编译期可知的常量。我们可以仿照声明一个自己的Array。这里的第二个模板参数就是非类型模板参数，要求传进去一个编译期可知的std::size_t类型的数作为整个Array的最大容量。
+template &amp;lt;typename T, std::size_t MaxSize&amp;gt; class Array { private: std::array&amp;lt;T, MaxSize&amp;gt; m_data; std::size_t m_length; public: constexpr Array() = default; constexpr std::size_t length() const { return m_length; } }; 函数的非类型模板参数我们也可以为函数声明一些非类型模板参数，例如下面这个addValue函数。
+template &amp;lt;int Val, typename T&amp;gt; T &amp;amp;addValue(T &amp;amp;x) { x += Val; return x; } 这个函数可以直接调用addValue&amp;lt;10&amp;gt;(integer)(当然你得先定义integer)。可是我们稍微细想一下就知道，这里的T和int类型一样吗？很容易不一样，而且编译器并不会报错，可是运行时就出现问题了。例如下面的代码调用。
+char const *str = &amp;#34;hello&amp;#34;; lap::addValue&amp;lt;10&amp;gt;(str); 这显示不是一个应该被使用的调用，然而编译器并不会报错，甚至运行时不会崩溃。但是这个str指针已经变成了奇怪的东西，它指向的地址增加了10字节，因为str是指向char类型的指针，所以 +10 相当于加了10字节。这就让str指向了它不应该指向的位置。当然，如果你声明的是char const * const str，那么编译器会正确报错。所以我们的目标是要求这个函数只能对相同类型做加法。
+在C++17之前，我们会这样声明addValue。
+template &amp;lt;typename T, T Val …  ]]></content></entry><entry><title>C++类模版</title><url>/post/cpp-class-template/</url><categories><category>C++</category><category>C++ template meta programming</category></categories><tags><tag>C++</tag></tags><content type="html"><![CDATA[  继续开新坑了♿，C++ 模版元编程。作为一个记录笔记吧。如有错误，也请原谅QAQ，代码都是用msvc clang编译跑通。
+定义一个类模板相信大家已经会使用C++定义类模板了，不就是在定义的时候多加一行template&amp;lt;typename T&amp;gt; 吗。是的，这是最基础的泛型。例如下面的一个Stack类，就是一个模板类。在接下来的讲解中，请你不要关注Stack这个类本身的作用(例如栈)，这里我们仅仅以此为例，并讨论各种可能与模板类相关的语法，请忽略这种想法“这样定义一个构造函数没意义啊”，我们只讨论语法上的规则和可能性。
+template &amp;lt;typename T&amp;gt; class Stack { private: std::vector&amp;lt;T&amp;gt; m_data; public: Stack() = default; Stack(Stack const&amp;amp;); // 参数不指定模板特化类型,默认与当前被构造的Stack类型一致 Stack(Stack&amp;lt;T&amp;gt; &amp;amp;, size_t size); Stack(T elem) : m_data({std::move(elem)}) {} Stack(const std::initializer_list&amp;lt;T&amp;gt; &amp;amp;initList) : m_data(initList) {} }; 省略显式指出模板类型(since C++17)从C++17开始，我们可以不用再显式指出一个模版类的模版参数类型(默认值除外)，例如下面这段代码在C++17以后可以成功编译。
+Stack stk_initList{&amp;#34;Hello&amp;#34;}; Stack stk(&amp;#34;Hello&amp;#34;); 此时我们可以看见对于stk变量，其模版参数类型被推导为const char *(和char const *等价，都属于顶层const)。也可以看出这个构造函数匹配了Stack(T elem)，但是当我们看stk_initList时，我们却会发现不同的地方，虽然模版参数都被推导为了const char *，但是这里实际上调用了包含initializer_list的构造函数。 可是，如果我们需要更方便得去处理字符串，我们会希望虽然是通过&amp;quot;Hello&amp;quot;这样的字面量进行 …  ]]></content></entry><entry><title>Windows下使用neovide+lunarvim</title><url>/post/useneovidewithlunarvimwindows/</url><categories><category>tools</category></categories><tags><tag>tools</tag></tags><content type="html"> Windows 下 vscode 已经足够好了，但是还是很喜欢 neovide 的动画，也习惯了 vim 的各种快捷键，所以也把 lunarvim + neovim + neovide 在Windows下使用。
+安装 scoop
+在安装scoop之前需要确保你已经安装了 PowerShell(不是Windows PowerShell,就叫做PowerShell,安装指北
+使用Winget安装PowerShell
+)。
+打开PowerShell输入(最好有魔法)
+Set-ExecutionPolicy RemoteSigned -Scope Process -Force; iwr -useb get.scoop.sh | iex 安装必要组件
+PowerShell中使用scoop安装 neovim, neovide等。
+为scoop额外增加bucket scoop bucket add extras 开始安装(如果已经有安装过gcc、make可以不安装) scoop install neovim neovide gcc make unzip tree-sitter 配置 lunarvim 主题
+直接 clone 下 lunarvim的仓库(在 C:/Users/你的用户名/AppData/Loacl/nvim 里面) git clone https://github.com/LunarVim/LunarVim.git $env:LOCALAPPDATA\nvim --depth=1 还需要将刚刚clone的文件复制一份到 C:/Users/你的用户名/AppData/Roaming/lunarvim里(lunarvim是新建的)，然后把 lunarvim/nvim 这个 nvim 重命名为 lvim。 接下来请在PowerShell中先后尝试neovide、nvim看看能不能正确打开。 为 neovide 配置 Alias
+PowerShell 要配置的话感觉还挺麻烦的
+当前PowerShell文件 echo $PROFILE 将上面输出的文件进行更改,添加如下命令,下面的路径请更改为你的neovide可执行文件路径， 如果只用scoop安装且没有改路径的话，大概率可以在C:\Users\你的用户名\scoop\apps下找到。 Set-Alias vim &amp;#34;path/to/your/neovide.exe&amp;#34; 在 WSL 中使用 neovide
+目前只使用PowerShell的neovide打开WSL，命令如下
+neovide --wsl alias过的话就换成别名，比如我是
+vim --wsl 这样的话也需要在 WSL 中安装并配置一遍 neovim。</content></entry><entry><title>你的 Ubuntu bash输入延迟、卡顿？</title><url>/post/why-ubuntu-lag/</url><categories><category>Linux</category></categories><tags><tag>Linux</tag></tags><content type="html"> 这是在我的Ubuntu 23.10下大概持续了一个多星期的问题，无论是 bash zsh都出现了令人难以忍受的延迟输入问题，vim nvim等编辑器更是完全无法使用。直到最近找到这个问题的解决方法，在此记录。
+关于为何卡顿
+本博客参考了这篇 issue input delay on Terminal Ubuntu 22.04
+发现这可能是最近Ubuntu 更新 mutter 导致的问题，可以看看里面的解答。这里记录一下自己解决的情况。
+我的解决情况
+尝试
+怀疑是zsh导致的问题，尝试重装，无果，使用各种top、time等分析性能发现基本正常，iostat也并没有感觉到磁盘有问题。也找到一些博客说zsh冷启动相关问题，但我的zsh启动速度十分快，几乎没有什么延迟，延迟出现在输入阶段。 总结，大部分先前找到的方法对我无效，只能继续找相关问题。
+解决
+其实之前也在ask Ubuntu上查找终端卡顿、bash慢的问题，但是之前一直用zsh slow、bash slow等等关键词搜索，愣是没有可以解决的回答，最后用Ubuntn bash laggy找到了🥹，还是学好英语吧。
+参考方法
+参考了大佬 mikabytes 的方法，记录一下。这个并没有导致 apt损坏，并且对我Ubuntu 23.10有效，但是该PPA仅仅用于测试，可能会导致其他的问题。关于其他解决方案，可以参考之前提到的issue，但其他方案要么可能导致apt损坏，还有可能导致图形界面无法启动，所以这里我只选择了这个方案。
+sudo add-apt-repository ppa:vanvugt/mutter sudo apt update sudo apt upgrade 当官方提供了稳定的解决方案后，会发布新的改进版本，此时只需要移除上述添加的PPA然后再更新即可。
+sudo add-apt-repository --remove ppa:vanvugt/mutter sudo apt update sudo apt upgrade</content></entry><entry><title>最近遇到的一些坑(C++)</title><url>/post/some-pitfalls-encountered-1/</url><categories><category>C++</category></categories><tags><tag>C++</tag></tags><content type="html"><![CDATA[  最近写一个多项式类希望尽可能使用Modern C++，但是在使用过程中遇到了一些坑，记录如下：
+constexpr的坑最近用constexpr希望多项式类可以在编译期直接求值计算，但是在使用过程中发现了一些问题
+std::vector的使用因为std::vector是动态分配内存的，而constexpr要求在编译期就能确定大小，所以std::vector是不被允许使用。可以尝试运行以下例子(为方便直接用结构体struct了)
+#include &amp;lt;vector&amp;gt; struct Base{ std::vector&amp;lt;int&amp;gt; _vec; constexpr Base(int n):_vec(n){} constexpr Base(const std::initializer_list&amp;lt;int&amp;gt;&amp;amp; il):_vec(il){} }; 上述代码会直接报错，原因也很清楚，constexpr 构造函数调用非 constexpr 构造函数来初始化子对象。所以如果要实现一个可以动态扩容的多项式类，大概率是无法使用constexpr的。为保证需要在编译期可知，使用std::array可能更好。因此我继续写了一个可以保证编译期求值的类polynimaicl_C
+多文件本来是打算把多项式类的声明写在polynimial.h中，定义写在polynomial.cpp中，然后把polynomial.cpp编译成静态库 与main.cpp链接，在main.cpp调用多项式类的成员函数。但是在使用过程中发现了一些问题，CMake编写如下
+add_library(polynomial-lib STATIC polynomial.cpp) add_executable(main main.cpp) target_link_libraries(main polynomial-lib) 当时CMake一直无法成功编译，一时以为是CMake编写有误，但是main.cpp中的报错信息却在constexpr polynimial_C poly1行上说constexpr对象必须为只读或者引用类型，并且在头文件中被用过的函数报出警告，表示该函数已被使用却从未定义，同时在build文件夹下也能找到编译好的静态库。所以CMake应该没问题，或者是问题出在了 LNK 阶段。 …  ]]></content></entry><entry><title>一个设计让你的C++只需要一个赋值运算符！</title><url>/post/exception-cpp/</url><categories><category>C++</category><category>Effective Modern C++</category></categories><tags><tag>C++</tag></tags><content type="html"><![CDATA[  希望没有标题党的意思,一个有趣且巧妙的设计,可以让一些类只需要两个构造函数,而我们只需要额外增加的只有swap和copy
+说明以下将以类Buffer作为例子 需要具有一定的左值和右值相关前置知识 同时涉及到异常处理相关内容 Buffer类的设计如下
+class Buffer { private: char *m_data; // 存放字符串 std::size_t m_length; // 字符串长度 std::size_t m_capacity; // 字符串的容量 public: explicit Buffer(std::size_t length); // 构造函数 ~Buffer(); // 析构函数 Buffer(const Buffer &amp;amp;rhs); // 拷贝构造 Buffer(Buffer &amp;amp;&amp;amp;rhs) noexcept; // 移动构造 Buffer &amp;amp;operator=(Buffer rhs) noexcept; // 赋值运算符 void swap(Buffer &amp;amp;rhs) noexcept; // 类内swap函数 }; 构造函数和拷贝构造函数的设计这里两个函数的设计很常规,以下直接给出代码做参考（函数定义写在类内）
+explicit Buffer(std::size_t length) try : m_data(length &amp;gt; 0 ? new char[length] : nullptr), m_length(0), m_capacity(length) { } catch (const std::bad_alloc &amp;amp;e) { std::cerr &amp;lt;&amp;lt; &amp;#34;Failed to allocate memory\n&amp;#34;; std::cerr &amp;lt;&amp;lt; e.what() &amp;lt;&amp;lt; &amp;#39;\n&amp;#39;; delete[] m_data; throw; } Buffer(const Buffer &amp;amp;rhs) try : m_length(rhs.m_length),m_capacity(rhs.m_capacity),m_data(rhs.m_capacity &amp;gt; 0 ? new char[rhs.m_capacity] : …  ]]></content></entry><entry><title>关于我的计算机中的发现——小端存储</title><url>/post/find-mycomputer/</url><categories><category>C++</category></categories><tags><tag>C++</tag><tag>life</tag></tags><content type="html"><![CDATA[  最近尝试reinterpret_cast时发现验证了一些计算机组成原理中内存相关的存储方式，不过也只是一些小玩意罢了。
+C++代码如下
+int main() { char cc = &#39;A&#39;; int *ccptr = reinterpret_cast&lt;int *&gt;(&amp;cc); std::cout &lt;&lt; cc &lt;&lt; &#39;\n&#39;; std::cout &lt;&lt; *ccptr &lt;&lt; &#39;\n&#39;; } 在调试查看内存时，验证了小端序的存储方式，可看下图
+这里变量cc的地址处可以看见存储的字符是A，但是当我们打印*ccptr时得到的值却是 -3166399，从我之前的印象中，我以为这里应该打印出65才对，但是其实仔细一想，int*指向的应该是一个 32 位 4 字节的数字，而char类型只有一个字节，也就是说，$(65)_D$这样一个十进制数只占一个字节，显然少了三个字节，而这少的三个字节，我们通过内存视图容易发现，是由$(41)_H$这个十六进制数之后的AF CF FF共同组成。但是如果这个int数是$(41AFCFFF)_H$的话，那么无论是int16还是int32都对不上，所以只能是小端序的存储方式，也即$(FFCFAF41)_H$，而该十六进制以补码形式存储，最高一位做符号位，转换成十进制数也就是-3166399，这与*ccptr结果一致。
+  ]]></content></entry><entry><title>CMake链接OpenCV(补档)</title><url>/post/cmake2/</url><categories><category>C++</category></categories><tags><tag>C++</tag></tags><content type="html"><![CDATA[  使用CMake链接OpenCV实际上不需要直接指定绝对路径，本文主要是记录OpenCV更合理的配置。
+CMakelists如何编写相信大家在网上查找如何使用CMake配置好OpenCV都会看见以下代码。
+find_package(OpenCV REQUIRED) add_executable(opencv-project main.cpp) target_include_directories(opencv-project PRIVATE ${OpenCV_INCLUDE_DIRS}) target_link_libraries(opencv-project ${OpenCV_LIBS}) message(STATUS &#34;OpenCV_INCLUDE_DIRS = ${OpenCV_INCLUDE_DIRS}&#34;) message(STATUS &#34;OpenCV_LIBS = ${OpenCV_LIBS}&#34;) 这些代码十分神奇🤔，因为这里好像根本不需要指定路径就能调用OpenCV库，但是我们发现，整个CMake除了message是用来终端打印信息，其他的代码仿佛也都是在指定链接的库lib在哪、头文件include在哪，可是却没有一个路径。
+为什么CMake能找到OpenCV?关于find_package实际上，这条语句会寻找一个文件OpenCVConfig.cmake，这也是为什么find_package内必须写的是OpenCV，而不能是opencv、Opencv。这是因为官方提供的opencv包中，build文件夹下提供是的OpenCVConfig.cmake，所以大小写必须按照该文件名来。同时，该语句会在系统环境变量中寻找&quot;opencv/build&quot;这样一个文件夹，所以实际上要链接openCV,CMake是通过系统环境变量找到这个文件夹，再通过OpenCVConfig.cmake提供相对路径找到其他文件夹。
+关于OpenCV_LIBS和OpenCV_INCLUDE_DIRS在CMake中，&amp;{}内实际上是一个变量，也就是说OpenCV_LIBS和OpenCV_INCLUDE_DIRS应该是存储了静态库 lib 和头文件地址的变量，这可以在message中打印出来（执行cmake ..时可以在终端看见），而这两个变量由find_package找到系统环境变量中的&quot;opencv/build&quot;内各OpenCVConfig.cmake提供，这里可以通过打开相关.cmake文件查找两个变量。
+  ]]></content></entry><entry><title>Windows下CMake链接库</title><url>/post/cmake1/</url><categories><category>C++</category></categories><tags><tag>C++</tag></tags><content type="html"> 如何在VScode中使用CMake链接库，主要是静态库，动态库在Windows中直接放在exe同目录。
+说明
+Cmake工具包使用VS Studio Community 2022 - amd64。 这篇博客会以两个库作为例子，一个是自己写的add.h及add.cpp另一个则链接openCV4.8.0。 这篇博客不记录CMake、C++等工具相关配置。 关于add.h
+编译链接静态库
+以下是文件结构，未标识后缀的应视为文件夹，除.vscode属一个文件夹（主要是 C++相关配置文件）。 此项目名称为cmake-study。 D:/cmake-study/ ├─.vscode ├─build ├─lesson2-1 │ ├─add │ ├─add.cpp │ └─CMakelists.txt │ ├─lib │ ├─add_static.lib │ └─add.h │ ├─CMakelists.txt │ └─main.cpp ├─CMakeLists.txt C++中我们自己写的库可以与main一起放在同一目录下，#include&amp;amp;quot;add.h&amp;amp;quot;然后进行调试或运行。对于我们自己写的库，为避免过多的代码复写，直接编译成动态库或静态库要更加省力。所以我们的目标是将add.cpp编译成静态库，然后通过CMake指定需要链接的库，然后直接在main.cpp中调用即可。
+编写lesson2-1/add中的CMakelists
+我们的目标是通过该CMakelists.txt指定将add.cpp编译为一个静态库，Windows系统一般以.lib作后缀。所以该CMakelists.txt应编写如下。
+add_library(add_static add.cpp) add_library指定我们需要编译一个‘库’，而内部的add_static指定编译后库的名字，也即编译后，我们的静态库应该叫add_static.lib，而add.cpp则是需要编译的文件，需要注意的是，这里使用的是相对路径，也可以写成./add.cpp。
+编写lesson2-1中的CMakelists
+该CMakelists的目标是将./add中的CMakelists加入进来，同时指定需要包括的静态库文件的位置、需要链接的静态库文件以及需要编译的文件。在本文件结构下，把所有静态库以及相关头文件全部放在 …</content></entry><entry><title>C++移动语义(补充)</title><url>/post/cppmove_2/</url><categories><category>C++</category><category>Effective Modern C++</category></categories><tags><tag>C++</tag></tags><content type="html"><![CDATA[  对之前移动语义的部分补充，主要是关于std::move的实现
+std::move本质std::move本质上是把一个量(或一个值)强制转换成一个右值引用，然后再将该右值引用返回。但是在C++中存在引用折叠现象，具体是什么我们看下列例子。
+引用折叠template &lt;typename T&gt; T&amp;&amp; move(T &amp;&amp;param) { return static_cast&lt;T &amp;&amp;&gt;(param); } int main() { std::vector&lt;int&gt; v1{1, 2, 3}; auto v2 = move(v1); std::cout &lt;&lt; v1.size() &lt;&lt; &#39;\n&#39;; } 在该move函数中，我们通过一个右值引用接受一个参数，再强制转换成T&amp;&amp;类型并返回，好像符合我们的想法，但实际上，move函数被推导为以下类型
+std::vector&lt;int&gt; &amp;move&lt;std::vector&lt;int&gt; &amp;&gt;(std::vector&lt;int&gt; &amp;param) 我们发现，返回值是一个引用，同时参数也是一个引用，即T被推导为std::vector&lt;int&gt; &amp;类型，这不符合我们的预期。实际上这里就发生了引用折叠。
+我们传入的v1本身是一个左值，所以传入时应该为左值引用，由于三个&amp;出现折叠，最终T&amp;&amp;整体为单个&amp;类型，即左值引用。所以我们需要的应该是保留传入参数的基本类型(或者说没有任何引用的类型)，防止出现引用折叠，并保证T只可能推导成为该基本类型。这里，在C++14以上的版本提供了std::remove_reference_t&lt; &gt;来实现。
+template &lt;typename T&gt; decltype(auto) move2(T &amp;&amp;param) { using ReturnType = typename std::remove_reference_t&lt;T&gt; &amp;&amp;; // 如果T是 int &amp;&amp; ，则返回 int ,得到 ReturnType = int &amp;&amp; return static_cast&lt;ReturnType&gt;(param); } typename强调std::remove_reference_t&lt;T&gt;是一个类型，比如说int，std::string等，通过using定义新类型ReturnType为去掉所以引用后的T再加上&amp;&amp;组成的右值引用类型。假设T是int &amp;&amp;，那么std::remove_reference_t&lt;T&gt;就会得到int，再结合&amp;&amp;得到int &amp;&amp;，此时无论param是什么类型，都能被强制转换成一个右值引用。此处返回值类型使用decltype(auto)，由于直接使用auto本质上和直接使用T做返回值一样，此时使用decltype进一步修饰可以保证保留原来的类型，之所以返回值不写ReturnType是因为它在函数内被声明定义，函数定义时还没有该类型，我们也可以像以下这样，可能看起来更明白做了什么。
+template &lt;typename T&gt; typename std::remove_reference_t&lt;T&gt; &amp;&amp; move2(T &amp;&amp;param) { using ReturnType = typename std::remove_reference_t&lt;T&gt; &amp;&amp;; // 如果T是 int &amp;&amp; ，则返回 int ,得到 ReturnType = int &amp;&amp; return static_cast&lt;ReturnType&gt;(param); }   ]]></content></entry><entry><title>关于C++中使用using替代typedef</title><url>/post/cppusing/</url><categories><category>C++</category><category>Effective Modern C++</category></categories><tags><tag>C++</tag></tags><content type="html"><![CDATA[  很久没有更新博客了🫠，主要是(懒)学业繁忙，继续写点C++相关吧。
+最近在写一些 ds 中的算法时涉及需要同时调试几个函数，操作基本一致，一开始的想法是直接使用函数指针做调用，尽管也顺利完成了，但感觉还是不够C++。
+之前先浅谈一下之后可能聊到的东西。
+假设共4个函数，分别是 fn1、fn2、fn3、fn4。 假令我们的函数指针、typedef 、 using 定义的均使用fnPtr。 函数的参数均为int型，返回值为std::vector&lt;int&gt;。 函数指针数组函数指针可以说是C当中的一个经典写法了，以下定义一个函数指针，怎么读呢？
+括号让[]与fnPtr先结合表明fnPtr是一个数组，再与*结合表明数组元素是指针，最后与(int )结合表明这是一个函数，而前面的std::vector&lt;int&gt;则表明返回类型。
+std::vector&lt;int&gt; (*fnPtr[])(int ) = {fn1 , fn2 , fn3 , fn4} 通过这样一个函数指针，我们可以轻松地像数组一样批量调用fn$i$。
+for(int i=0; i&lt;4 ;i++) fnPtr[i](i); // 也可以更C++一点 for(auto &amp; fn:fnPtr) fn(1); // 传参 1 是随便写的 使用 typedeftypedef也是很常用了，比如我们不喜欢一直写long long，我们可以使用typedef ，如下：
+long long a = 1; typedef long long ll; ll b = 1; // good 在上述例子中，我们可以感觉到typedef好像十分优雅地解决了long long难打的问题，但是如果我们再看下式呢？
+typedef std::vector&lt;int&gt; (*fnPtr)(int ); 经验丰富的C++大师已经知道这是一个函数指针了，但······作为蒻芨的我还是难以理解。typedef?蒽，看起来在定义一个类型，蒽？定义成谁了？是fnPtr？那为什么long long的例子里面是最后的ll？
+也许我们应该使用using
+使用usingusing也可以说是一种typedef的语法糖，但使用using可以使代码可读性变强太多。上例子中long long的问题，使用using的解法如下：
+using ll = long long; 我的世界突然就清澈了起来🥰，这个=太符合直觉了，好像就是把long long赋值给ll，所以ll就和long long一样。那函数指针数组呢？
+using fnPtr = std::vector&lt;int&gt; (* [])(int ); fnPtr fnptr = {fn1 , fn2 , fn3 , fn4}; 看起来是不是比typedef清爽多了，我们好像定义了一个类型fnPtr是一个返回值为std::vector&lt;int&gt; 的函数指针数组，使用这个类型定义一个变量fnptr去存下需要调用的函数岂不妙哉。
+for(auto &amp; fn:fnptr) fn(1); // 传参 1 是随便写的   ]]></content></entry><entry><title>艰难的选择？</title><url>/post/talk-1/</url><categories><category>lifeRecode</category></categories><tags><tag>life</tag></tags><content type="html">  一门随便水、除了上课没有任何其他事、轻松满绩但学不到任何东西的课，和一门你要付出极大努力才能拿到3.7甚至3.3(满绩 4.0 )，但是却能学到特别多实用且新颖的知识、锻炼你真正的工程能力和科研水平的课，上述两种课，你会选择谁呢？</content></entry><entry><title>C++移动语义</title><url>/post/cppmove/</url><categories><category>C++</category><category>Effective Modern C++</category></categories><tags><tag>C++</tag></tags><content type="html"><![CDATA[  最近看了一点移动语义，写一点学习内容吧
+简介C++中的移动语义是一种重要的语言特性，它允许高效地管理对象的资源，尤其是动态分配的内存，以提高性能和减少不必要的复制操作。移动语义通过引入右值引用（Rvalue references）和移动构造函数（Move constructors）来实现。
+下面是一些关键概念和技术，有助于理解C++中的移动语义：
+左值和右值： 左值（Lvalue）是可标识和具有地址的表达式，通常是变量或对象的名称。它们可以被赋值，但不能被移动。 右值（Rvalue）是临时的、不可标识的表达式，通常是临时对象或字面常量。它们通常是可以被移动的。 右值引用： 右值引用是一种新的引用类型，使用&amp;amp;&amp;amp;符号表示。它绑定到右值，允许对其进行移动操作。 例如，T&amp;amp;&amp;amp;表示类型T的右值引用。 移动构造函数： 移动构造函数是特殊的构造函数，它接受一个右值引用作为参数，用于从另一个对象&amp;quot;窃取&amp;quot;资源，而不是进行深度拷贝。 移动构造函数通常被用于容器类，如std::vector和std::string，以提高性能。 std::move函数： std::move是一个库函数，用于将左值转换为右值引用。这对于标记要移动的对象非常有用。 例如，std::move(obj)将对象obj转换为右值引用，从而可以在移动构造函数中使用它。 移动赋值运算符： 类似于移动构造函数，移动赋值运算符用于在对象之间执行资源的移动，通常在赋值操作中使用。 std::move语义的优点： 移动语义可以显著提高性能，减少内存分配和复制操作。 它适用于动态分配内存的对象，如动态数组或字符串，以减少不必要的内存复制。 在容器的操作中，移动语义可以减少数据的移动成本。 #include &amp;lt;iostream&amp;gt; #include &amp;lt;vector&amp;gt; int main() { std::vector&amp;lt;int&amp;gt; source = {1, 2, 3}; std::vector&amp;lt;int&amp;gt; destination = std::move(source); // 此时source已被移动，不再有效 std::cout &amp;lt;&amp;lt; &amp;#34;Source size: &amp;#34; &amp;lt;&amp;lt; source.size() …  ]]></content></entry><entry><title>一些关于评价与成绩的想法</title><url>/post/thoughts-grades/</url><categories><category>lifeRecode</category></categories><tags><tag>life</tag></tags><content type="html"><![CDATA[  如何满足外界的评价体系同时建立自己的评价体系，并且不陷入到仅&amp;quot;自我满足&amp;quot;的陷阱中？
+前言：最近见到了一种现象，很多人否定外界的&amp;quot;评价&amp;quot;，开始追寻&amp;quot;自我的价值&amp;quot;，否定“世俗的&amp;rsquo;评价&amp;rsquo; ”，开始追寻所谓“自己定义的&amp;rsquo;优秀&amp;rsquo; ”。笔者以为这些行为和思考是部分正确的，但千万不能陷入到一个仅&amp;quot;自我满足&amp;quot;的陷阱中。本文希望能阐释清楚问题在哪儿，为什么我们如此想认识自己，却走偏了路。下面这段话，送给时务繁忙的朋友们，权当笔者的一种态度吧。需要强调的是，本文没有参考或借鉴任何一篇文章，纯属个人的认识和态度，欢迎讨论指点。
+一个真正智慧且初心不忘的人，他深刻地认识到周围的世界，充分利用已有且既定的不为他所满足的规则和制度，得到在该已有且既定的规则和制度中所崇敬的地位或职权，那时便大刀阔斧，实现所有的初心，改变不为他所满足的规则和制度。即使要毁灭自己在曾有且既定的规则和制度中获取的地位或职权，他也在所不惜，因为他初心如此，志向如此。
+问题是什么？&amp;ldquo;卷&amp;rdquo;？&amp;ldquo;躺平&amp;rdquo;？&amp;ldquo;摆烂&amp;rdquo;？还是自己为自己找来一种冠冕堂皇的理由？卷卷更多的是一套网络用语，并没有严格的定义。很多人对于&amp;quot;卷&amp;quot;有一套自己的定义。笔者认为的&amp;quot;卷&amp;quot;是恶性竞争，是在资源总量不变的情况下，通过超额完成或过度完成不必要的工作学习，在&amp;quot;外界评价体系&amp;quot;中争取更高的评价；从而导致其他竞争者为了保持或获取更多的资源及更高的评价，不得不通过相似的超额完成或过度完成不必要的工作学习的行为参与到竞争中来，最终导致越来越多的竞争者参与进去。但资源总量不变，每个人获取到单位&amp;quot;价值&amp;quot;所要的付出却开始不断增加，而这又是资源总量掌握者所期望的行为，最终导致每个人在获取原本应得的单位&amp;quot;价值&amp;quot;时，所付出的&amp;quot;成本&amp;quot;大幅度增加。
+躺平与&amp;quot;卷&amp;quot;相对，也是一套网络用语。这里给出笔者的定义，&amp;quot; 躺平&amp;quot;是相对于&amp;quot;卷&amp;quot;而言的，在越来越多批人参与到&amp;quot;卷&amp;quot;的过程中，先来者先获利， …  ]]></content></entry><entry><title>HTML+CSS学习</title><url>/post/htmlcss-1/</url><categories><category>HTML+CSS</category></categories><tags><tag>HTML+CSS</tag></tags><content type="html"> （一）HTML+CSS学习系列
+初识HTML和CSS
+HTML 是一种超文本标记语言，主要用于网页端页面主体结构开发，在 Markdown 或一些其他的标记语言中也可能用于文本布局排版。 CSS 是 HTML 的一部分，主要用与设计 HTML 中各种标签的颜色样式等。 可以理解为 HTML 负责主体的排版，而 CSS 则负责装饰。 浏览器——渲染内核
+四大主流浏览器
+Microsoft Edge(替代IE浏览器) Google Chrome(目前市场占有率最大，搜索质量也较高的浏览器) Safari (Mac自带的浏览器) FireFox (火狐) HTML 严格来说不属于一种编程语言，如C++ Python 等，HTML 所写的代码通过浏览器进行渲染并呈现在页面上。
+Web标准
+使一套代码的在多种浏览器下的通用 使网站更易被搜索引擎搜索 使网站易于维护 提高开发人员开发出页面的统一性和标准性</content></entry><entry><title>关于C++中如何检测中文字符串</title><url>/post/cppchinesechar/</url><categories><category>C++</category></categories><tags><tag>C++</tag></tags><content type="html"> 最近遇见需要处理中文字符串的问题，记录一下处理方法。
+中文字符的 ASCII 码
+我们都知道，对于一个英文字符，或者说半角字符而言，其 ASCII 码为0~127 对应的二进制数为0000 0000~0111 1111 ，不难看出一个半角字符占一个字节。
+中文字符则稍显复杂，中文字符的 ASCII 码最高位为 1 ，并且需要两个这样的编码才能得到一个中文字符，也就是说，一个中文字符占两个字节。且一个这样的编码范围应是1000 0000~1111 1111，对应-128~ -1 。
+如何在 CPP 中识别中文字符
+在 CPP 中，字符的比较实际是通过 ASCII 码进行的。经过上述认识我们可以知道，中文字符对应了两个字节，每个字节存储一个8位且数值上大于1000 0000的二进制码，为了便于比较，使用unsigned char 对中文字符进行比较会更为方便，这样最高位的1也表示大小，而不受$\pm$影响。此时，一个中文字符对应的两个编码均为大于1000 0000的二进制数，也即大于0x80的十六进制数，以此，我们可以遍历一个中文字符，判断其编码是否均大于0x80。
+//判断是否是中文字符的函数 inline bool CheckChinese(unsigned char){ return char &amp;gt;= 0x80; } 该函数能很好的帮助我们判断一个字符是否是中文，是则返回true，不是则反之。
+//判断有几个中文字符 unsigned int ChineseNum(unsigned char* str){ unsigned int count{0}; //定义一个计数器 for(int i=0; str[i]; ++i){ if(CheckChinese(str[i])) ++count; } return count/2; } 对于一个中文字符而言，每次比较其 ASCII 码时需要比较两次，故最终return后需要对count/2处理。</content></entry><entry><title>Windows11关于如何在github.io上部署个人博客Hugo</title><url>/post/hugo-website/</url><categories><category>blog</category></categories><tags><tag>blog</tag></tags><content type="html"><![CDATA[  本人也是使用的hugo with github pages，在前期查询了大量的教程，最后终于算是成功了，这里记录一下自己的部署过程。
+1.需要的前置安装包括下列三种：
+Git Golang(可不安装，但建议有) Hugo Git的安装这里直接访问Git - Downloads (git-scm.com)安装即可。
+选择Windows
+选择对应的版本安装即可，64位选64位或32位均可，32位机选32位
+然后一路 next ，选择你的安装路径即可。
+安装完毕之后，随便找到一个文件夹然后鼠标右键显示更多选项，有Git Bash和Git GUI即可
+关于如何使用Git，请参阅其他Git教程。
+Hugo安装首先我们使用到choco去安装hugo，先安装hugo，先以管理员权限打开powershell powershell -NoProfile -ExecutionPolicy unrestricted -Command &amp;#34;iex ((new-object net.webclient).DownloadString(&amp;#39;https://chocolatey.org/install.ps1&amp;#39;))&amp;#34; # 设置环境变量 SET PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin 然后使用 choco 安装 hugo (同样需要以管理员权限打开 powershell ) # 安装可能较慢 choco install hugo-extend 在 cmd 或者 powershell 中，我们可以使用以下命令查看 hugo 是否安装成功，如果成功则会显示版本。 &amp;gt; hugo version # cmd显示 hugo v0.119.0-等信息 使用 choco 安装golang，在powershell中使用下述命令即可 choco install golang Hugo本地部署先新建一个文件夹作为博客的工作区。在这个文件夹内打开 Git Bash，输入下述命令，在 site 后面输入自己想创建的博客名称即可，这里以MyNewBlog为例 $ hugo new site MyNewBlog 然后转到这个文件夹内部 $ cd MyNewBlog 使用下述命令创建空的 Git 存储库 $ git init 下一步 …  ]]></content></entry><entry><title>关于我</title><url>/about.html</url><categories/><tags/><content type="html">
+我是正在一名学习计算机专业的学生
+希望能遇到志同道合的朋友
+一个理想主义者，一个浪漫主义者。
+愿生活充满诗意，愿远方永远触手可及。
+感谢你的关注，我素未谋面的朋友。</content></entry><entry><title>关于时间真假的一个思考</title><url>/post/thinkunivse/</url><categories><category>lifeRecode</category></categories><tags><tag>life</tag></tags><content type="html"> 中学时还不懂各种悖论，也不懂相对论，虽然现在也不懂，但还是传上来，挺有意思的。就像我憧憬的一位学长所说&amp;quot;Why there is a universe?&amp;quot;
+时间真假的问题(纯个人脑洞)
+关于时空穿梭，可以分为三种情况
+一.穿梭后本人与当时的自己同处于一个世界
+二.穿梭后本人成为当时的自己
+三.穿梭后本人不与当时的自己处于一个世界
+我们可以假设，A是未来世界的人，B是罪犯，因为特殊原因，A只能穿梭回过去杀死小时的B,阻止B的犯罪。A穿梭后与当时的B同处一个世界，并杀死了b（小时的B）。
+可以发现，A是因为B的犯罪而穿梭时空，那么杀死了b，B就不可能在未来犯罪，但是A也因此没有理由去杀死B，因为B是过去已死的人，那么未来B已死，A就不必杀b，所以B真的死了吗?
+若是平行宇宙，A杀死的是本宇宙的b，那么情况同上，但是如果A杀死的是另一个平行宇宙的b，另一个平行宇宙并不影响本宇宙，那么本宇宙B依然存在。
+所以时空穿梭有可能吗？或者说时间也许是不存在的？</content></entry><entry><title>一首中学时的诗</title><url>/post/a-poem/</url><categories><category>lifeRecode</category></categories><tags><tag>life</tag></tags><content type="html">
+舒婷女士的《致橡树》很美，而从橡树的角度，又有别一番感受。
+其实已经不知道这是出自谁手了，只记得是中学时发表在QQ空间，现在想起来，还是有些感触。
+如果我是一挺橡树，我愿用我的高枝，
+在你的身旁，
+撑起绿荫一丛丛。
+那风雷，
+那寒潮，
+那霹雳，
+都无法冲破我的铜枝铁杆。
+而你，就作一珠木棉，
+红硕的花朵，
+是你微微一笑。
+英勇的火炬，
+是你咬唇一抿。
+你就站在身旁，
+却不曾紧紧挨靠，
+却根深，却相触。
+我们共享，
+那雾霭，
+那流岚，
+那虹霓，
+我们永远分离，
+却又终生相依。</content></entry><entry><title>友情链接</title><url>/flinks.html</url><categories/><tags/><content type="html"> 如想交换本站友情链接，请在评论区留下你的站点信息，格式参考如下：
+- name: Laplace desc: When the SUN Rises in the EAST avatar: https://lap.cn/imgs/avatar.png link: https://lap.cn</content></entry></search>
